@@ -15,6 +15,22 @@ namespace SocialPlatformApp.Repos.Migrations
                 name: "SocialPlatformAppSchema");
 
             migrationBuilder.CreateTable(
+                name: "Auth",
+                schema: "SocialPlatformAppSchema",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Email = table.Column<string>(type: "text", nullable: true),
+                    PasswordSalt = table.Column<byte[]>(type: "bytea", nullable: true),
+                    PasswordHash = table.Column<byte[]>(type: "bytea", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Auth", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "User",
                 schema: "SocialPlatformAppSchema",
                 columns: table => new
@@ -237,6 +253,10 @@ namespace SocialPlatformApp.Repos.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Auth",
+                schema: "SocialPlatformAppSchema");
+
             migrationBuilder.DropTable(
                 name: "ChatMessage",
                 schema: "SocialPlatformAppSchema");

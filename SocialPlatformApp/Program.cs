@@ -1,3 +1,4 @@
+using Prometheus;
 using SocialPlatformApp.Business.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,20 +10,44 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.RegisterDependencies(builder.Configuration);
+builder.Services.AddCors(ops =>
+{
+    ops.AddPolicy("DevCors", opts =>
+    {
+        opts.AllowAnyHeader();
+        opts.AllowAnyMethod();
+        opts.AllowCredentials();
+        opts.WithOrigins("http://localhost:4200");
+    });
+});
+
+
+
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseCors("DevCors");
 }
 
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseRouting(); //for the metrics
+
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapMetrics(); // Exposes metrics at /metrics endpoint
+});
 
 app.Run();

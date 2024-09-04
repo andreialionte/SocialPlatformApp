@@ -7,11 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ably.io" Version="1.2.15" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+    <PackageReference Include="PusherServer" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SocialPlatformApp.Common\SocialPlatformApp.Common.csproj" />
     <ProjectReference Include="..\SocialPlatformApp.Repos\SocialPlatformApp.Repos.csproj" />
   </ItemGroup>
 

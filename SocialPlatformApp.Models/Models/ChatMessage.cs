@@ -15,5 +15,6 @@ namespace SocialPlatformApp.Models.Models
         public User? Receiver { get; set; } //other user who recive the message
         public string? Content { get; set; }
         public DateTime Timestamp { get; set; }
+        public string? Channel { get; set; } // new 
     }
 }

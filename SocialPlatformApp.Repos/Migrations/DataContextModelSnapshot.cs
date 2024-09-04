@@ -23,6 +23,28 @@ namespace SocialPlatformApp.Repos.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("SocialPlatformApp.Models.Models.Auth", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("PasswordHash")
+                        .HasColumnType("bytea");
+
+                    b.Property<byte[]>("PasswordSalt")
+                        .HasColumnType("bytea");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Auth", "SocialPlatformAppSchema");
+                });
+
             modelBuilder.Entity("SocialPlatformApp.Models.Models.ChatMessage", b =>
                 {
                     b.Property<int>("Id")
@@ -30,6 +52,9 @@ namespace SocialPlatformApp.Repos.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Channel")
+                        .HasColumnType("text");
 
                     b.Property<string>("Content")
                         .HasColumnType("text");
@@ -108,6 +133,38 @@ namespace SocialPlatformApp.Repos.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Friend", "SocialPlatformAppSchema");
+                });
+
+            modelBuilder.Entity("SocialPlatformApp.Models.Models.FriendRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("RecipientId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("RequestedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("RespondedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("SenderId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecipientId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("FriendRequest", "SocialPlatformAppSchema");
                 });
 
             modelBuilder.Entity("SocialPlatformApp.Models.Models.Like", b =>
@@ -238,7 +295,7 @@ namespace SocialPlatformApp.Repos.Migrations
             modelBuilder.Entity("SocialPlatformApp.Models.Models.Friend", b =>
                 {
                     b.HasOne("SocialPlatformApp.Models.Models.User", "FriendUser")
-                        .WithMany()
+                        .WithMany("FriendsOf")
                         .HasForeignKey("FriendId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -252,6 +309,25 @@ namespace SocialPlatformApp.Repos.Migrations
                     b.Navigation("FriendUser");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SocialPlatformApp.Models.Models.FriendRequest", b =>
+                {
+                    b.HasOne("SocialPlatformApp.Models.Models.User", "Recipient")
+                        .WithMany("ReceivedFriendRequests")
+                        .HasForeignKey("RecipientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SocialPlatformApp.Models.Models.User", "Sender")
+                        .WithMany("FriendRequests")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Recipient");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("SocialPlatformApp.Models.Models.Like", b =>
@@ -295,11 +371,17 @@ namespace SocialPlatformApp.Repos.Migrations
                 {
                     b.Navigation("Comments");
 
+                    b.Navigation("FriendRequests");
+
                     b.Navigation("Friends");
+
+                    b.Navigation("FriendsOf");
 
                     b.Navigation("Like");
 
                     b.Navigation("Posts");
+
+                    b.Navigation("ReceivedFriendRequests");
 
                     b.Navigation("ReceivedMessages");
 

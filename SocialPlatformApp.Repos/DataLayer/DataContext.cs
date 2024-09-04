@@ -15,6 +15,8 @@ namespace SocialPlatformApp.Repos.DataLayer
         public DbSet<Post> Posts { get; set; }
         public DbSet<Like> Likes { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<Auth> Auths { get; set; }
+        public DbSet<FriendRequest> FriendRequests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,8 +28,8 @@ namespace SocialPlatformApp.Repos.DataLayer
             modelBuilder.Entity<Post>().ToTable("Post").HasKey(p => p.Id);
             modelBuilder.Entity<Like>().ToTable("Like").HasKey(l => l.Id);
             modelBuilder.Entity<Comment>().ToTable("Comment").HasKey(c => c.Id);
+            modelBuilder.Entity<FriendRequest>().ToTable("FriendRequest").HasKey(k => k.Id);
 
-            // Configure relationships for User entity
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Like)
                 .WithOne(l => l.User)
@@ -64,7 +66,37 @@ namespace SocialPlatformApp.Repos.DataLayer
                 .HasForeignKey(f => f.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Configure relationships for Like entity
+            modelBuilder.Entity<User>()
+    .HasMany(u => u.FriendsOf)
+    .WithOne(f => f.FriendUser)
+    .HasForeignKey(f => f.FriendId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+            .HasMany(u => u.FriendRequests)
+                .WithOne(f => f.Sender)
+              .HasForeignKey(f => f.SenderId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+    .HasMany(u => u.ReceivedFriendRequests)
+    .WithOne(f => f.Recipient)
+    .HasForeignKey(f => f.RecipientId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<FriendRequest>()
+                .HasOne(o => o.Sender)
+                .WithMany(m => m.FriendRequests)
+                .HasForeignKey(o => o.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<FriendRequest>()
+                .HasOne(o => o.Recipient)
+                .WithMany(m => m.ReceivedFriendRequests)
+                .HasForeignKey(o => o.RecipientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
             modelBuilder.Entity<Like>()
                 .HasOne(l => l.User)
                 .WithMany(u => u.Like)
@@ -75,7 +107,7 @@ namespace SocialPlatformApp.Repos.DataLayer
                 .WithMany(p => p.Likes)
                 .HasForeignKey(l => l.PostId);
 
-            // Configure relationships for Friend entity
+
             modelBuilder.Entity<Friend>()
                 .HasOne(f => f.User)
                 .WithMany(u => u.Friends)
@@ -84,11 +116,11 @@ namespace SocialPlatformApp.Repos.DataLayer
 
             modelBuilder.Entity<Friend>()
                 .HasOne(f => f.FriendUser)
-                .WithMany()
+                .WithMany(f => f.FriendsOf)
                 .HasForeignKey(f => f.FriendId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Configure relationships for ChatMessage entity
+
             modelBuilder.Entity<ChatMessage>()
                 .HasOne(c => c.Sender)
                 .WithMany(u => u.SentMessages)
@@ -99,7 +131,7 @@ namespace SocialPlatformApp.Repos.DataLayer
                 .WithMany(u => u.ReceivedMessages)
                 .HasForeignKey(c => c.ReceiverId);
 
-            // Configure relationships for Post entity
+
             modelBuilder.Entity<Post>()
                 .HasOne(p => p.User)
                 .WithMany(u => u.Posts)
@@ -115,7 +147,7 @@ namespace SocialPlatformApp.Repos.DataLayer
                 .WithOne(l => l.Post)
                 .HasForeignKey(l => l.PostId);
 
-            // Configure relationships for Comment entity
+
             modelBuilder.Entity<Comment>()
                 .HasOne(c => c.User)
                 .WithMany(u => u.Comments)
@@ -154,6 +186,11 @@ namespace SocialPlatformApp.Repos.DataLayer
             modelBuilder.Entity<User>()
                 .Property(u => u.LastUpdatedAt)
                 .IsRequired();
+
+            modelBuilder.Entity<Auth>()
+                .ToTable("Auth")
+                .HasKey(u => u.Id);
+
         }
     }
 }
